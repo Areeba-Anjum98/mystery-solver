@@ -1295,6 +1295,13 @@ CASES = {
         "description": "Defense data leak.",
         "quote": "Only insiders had access.",
         "suspects": ["Dr. Ahmed Raza", "Aisha Nawaz", "Tariq Mehmood", "Zara Khan", "Hassan Iqbal"],
+        "suspect_roles": {
+    "Dr. Ahmed Raza": "Lead Researcher",
+    "Aisha Nawaz": "Data Analyst",
+    "Tariq Mehmood": "Security Officer",
+    "Zara Khan": "Junior Researcher",
+    "Hassan Iqbal": "System Administrator"
+},
         "locations": ["Server Lab", "Conference Room", "Rooftop", "Parking", "Director Office"],
         "weapons": ["Decryption Key", "Remote Access", "USB Drive"],
         "solution": {
@@ -1325,6 +1332,14 @@ CASES = {
         "description": "Internal sabotage before launch.",
         "quote": "Insider knowledge required.",
         "suspects": ["Farhan Siddiqui","Nadia Hussain","Omar Sheikh","Rabia Tariq","Bilal Ahmed","Sara Zafar"],
+        "suspect_roles": {
+    "Farhan Siddiqui": "Chief Technology Officer",
+    "Nadia Hussain": "Chief Financial Officer",
+    "Omar Sheikh": "Head of Marketing",
+    "Rabia Tariq": "Head of HR",
+    "Bilal Ahmed": "Senior Developer",
+    "Sara Zafar": "Executive Intern"
+},
         "locations": ["Server Room","CEO Office","Marketing Floor"],
         "weapons": ["Admin Override","Presentation Access","Database"],
         "solution": {
@@ -1348,6 +1363,15 @@ CASES = {
         "description": "Medication switched at night.",
         "quote": "Label replaced physically.",
         "suspects": ["Dr Imran Khalid","Nurse Hina Baig","Nurse Kamil Shah","Nurse Zoya Ahmed","Pharmacist Rashid","Ward Boy Saleem","Visitor Unknown"],
+        "suspect_roles": {
+    "Dr Imran Khalid": "Night Shift Doctor",
+    "Nurse Hina Baig": "Head Nurse",
+    "Nurse Kamil Shah": "Ward Nurse",
+    "Nurse Zoya Ahmed": "Ward Nurse",
+    "Pharmacist Rashid": "On-call Pharmacist",
+    "Ward Boy Saleem": "Ward Assistant",
+    "Visitor Unknown": "Unregistered Visitor"
+},
         "locations": ["Patient Room","Medicine Storage","Pharmacy"],
         "weapons": ["Label Replacement","Prescription Forgery","Key Duplication"],
         "solution": {
@@ -1371,6 +1395,16 @@ CASES = {
         "description": "Witness vanished.",
         "quote": "Last call 11 PM.",
         "suspects": ["Advocate Zubair","Inspector Farooq","Tariq","Mehwish","Bilal","Asad","Samina","Naseer"],
+        "suspect_roles": {
+    "Advocate Zubair": "Defense Lawyer",
+    "Inspector Farooq": "Investigating Officer",
+    "Tariq": "Accused Relative",
+    "Mehwish": "Accused Relative",
+    "Bilal": "Court Assistant",
+    "Asad": "Hotel Manager",
+    "Samina": "Prosecution Lawyer",
+    "Naseer": "Driver"
+},
         "locations": ["Room 204","Lobby","Service Exit"],
         "weapons": ["Intimidation","Bribery","Forced Removal"],
         "solution": {
