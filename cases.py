@@ -445,714 +445,12 @@
 # # # AC-3 constraints perform reasoning automatically.
 # # # ============================================================
 
-# # CASES = {
-
-# #     # ========================================================
-# #     # CASE 1
-# #     # ========================================================
-
-# #     1: {
-# #         "id": 1,
-# #         "level": "fun",
-# #         "difficulty": "Easy",
-# #         "emoji": "🍰",
-# #         "title": "The Missing Cake Mystery",
-# #         "location": "Home Kitchen",
-
-# #         "description": (
-# #             "Mom baked a beautiful chocolate cake and left it on the kitchen counter. "
-# #             "One hour later — the cake was completely gone! Only three suspects were "
-# #             "home at the time. Someone has a sweet tooth and a guilty conscience."
-# #         ),
-
-# #         "quote": (
-# #             "There were chocolate crumbs on the floor and small footprints near the counter..."
-# #         ),
-
-# #         "suspects": [
-# #             "Brother Ali",
-# #             "Sister Sara",
-# #             "Dog Bruno"
-# #         ],
-
-# #         "suspect_roles": {
-# #             "Brother Ali": "12-year-old, loves chocolate",
-# #             "Sister Sara": "8-year-old, just had lunch",
-# #             "Dog Bruno": "Golden Retriever, always hungry"
-# #         },
-
-# #         "locations": [
-# #             "Kitchen Counter",
-# #             "Living Room",
-# #             "Backyard",
-# #             "Bedroom"
-# #         ],
-
-# #         "weapons": [
-# #             "Ate it directly",
-# #             "Shared with friend",
-# #             "Knocked it to floor"
-# #         ],
-
-# #         "solution": {
-# #             "culprit": "Dog Bruno",
-# #             "location": "Kitchen Counter",
-# #             "weapon": "Knocked it to floor"
-# #         },
-
-# #         "clues": [
-
-# #             {
-# #                 "id": 1,
-# #                 "text": (
-# #                     "Small paw-shaped chocolate prints were found on the kitchen floor "
-# #                     "leading to the backyard."
-# #                 ),
-
-# #                 "facts": {
-# #                     "paw_prints": True
-# #                 },
-
-# #                 "reason": {
-# #                     "suspect": "Only Bruno matches paw prints"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: paw_prints=True"
-# #                 )
-# #             },
-
-# #             {
-# #                 "id": 2,
-# #                 "text": (
-# #                     "The cake plate was found on the floor — not on the counter. "
-# #                     "It was knocked down, not carried."
-# #                 ),
-
-# #                 "facts": {
-# #                     "cake_knocked": True
-# #                 },
-
-# #                 "reason": {
-# #                     "weapon": "Only knocking behavior fits"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: cake_knocked=True"
-# #                 )
-# #             },
-
-# #             {
-# #                 "id": 3,
-# #                 "text": (
-# #                     "Sister Sara was watching TV in the living room the entire time — "
-# #                     "Mom confirmed she never entered the kitchen."
-# #                 ),
-
-# #                 "facts": {
-# #                     "sara_alibi": True,
-# #                     "crime_scene": "Kitchen Counter"
-# #                 },
-
-# #                 "reason": {
-# #                     "suspect": "Sara has confirmed alibi",
-# #                     "location": "Crime occurred at kitchen counter"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: sara_alibi=True, crime_scene=Kitchen Counter"
-# #                 )
-# #             }
-# #         ],
-
-# #         "constraints": [
-
-# #             (
-# #                 "suspect",
-# #                 lambda v, kb:
-# #                     not kb.get("paw_prints") or v == "Dog Bruno"
-# #             ),
-
-# #             (
-# #                 "suspect",
-# #                 lambda v, kb:
-# #                     not (kb.get("sara_alibi") and v == "Sister Sara")
-# #             ),
-
-# #             (
-# #                 "location",
-# #                 lambda v, kb:
-# #                     kb.get("crime_scene") is None or
-# #                     v == kb.get("crime_scene")
-# #             ),
-
-# #             (
-# #                 "weapon",
-# #                 lambda v, kb:
-# #                     not kb.get("cake_knocked") or
-# #                     v == "Knocked it to floor"
-# #             )
-# #         ]
-# #     },
-
-# #     # ========================================================
-# #     # CASE 2
-# #     # ========================================================
-
-# #     2: {
-
-# #         "id": 2,
-# #         "level": "fun",
-# #         "difficulty": "Easy",
-# #         "emoji": "📚",
-# #         "title": "The Lost Homework Case",
-# #         "location": "School Classroom 5B",
-
-# #         "description": (
-# #             "Hamza submitted his homework to the class monitor before recess. "
-# #             "After recess, the homework was missing from the monitor's desk. "
-# #             "The teacher is upset and Hamza could fail."
-# #         ),
-
-# #         "quote": (
-# #             "A torn notebook page was found near the window, and there were ink marks on the desk..."
-# #         ),
-
-# #         "suspects": [
-# #             "Classmate Omer",
-# #             "Class Monitor Hira",
-# #             "Classmate Sadia"
-# #         ],
-
-# #         "suspect_roles": {
-# #             "Classmate Omer": "Sits next to monitor desk",
-# #             "Class Monitor Hira": "Responsible for homework collection",
-# #             "Classmate Sadia": "Best friend of Hamza"
-# #         },
-
-# #         "locations": [
-# #             "Monitor Desk",
-# #             "Window Side",
-# #             "Classroom Door",
-# #             "Teacher Table"
-# #         ],
-
-# #         "weapons": [
-# #             "Hid it in bag",
-# #             "Threw it in bin",
-# #             "Accidentally destroyed it"
-# #         ],
-
-# #         "solution": {
-# #             "culprit": "Classmate Omer",
-# #             "location": "Monitor Desk",
-# #             "weapon": "Hid it in bag"
-# #         },
-
-# #         "clues": [
-
-# #             {
-# #                 "id": 1,
-
-# #                 "text": (
-# #                     "Hira the monitor kept a log — she recorded receiving Hamza's homework before recess."
-# #                 ),
-
-# #                 "facts": {
-# #                     "hira_verified": True
-# #                 },
-
-# #                 "reason": {
-# #                     "suspect": "Hira correctly documented homework"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: hira_verified=True"
-# #                 )
-# #             },
-
-# #             {
-# #                 "id": 2,
-
-# #                 "text": (
-# #                     "Sadia left the classroom immediately after recess started — "
-# #                     "students saw her go to the library."
-# #                 ),
-
-# #                 "facts": {
-# #                     "sadia_library": True,
-# #                     "crime_scene": "Monitor Desk"
-# #                 },
-
-# #                 "reason": {
-# #                     "suspect": "Sadia absent during theft",
-# #                     "location": "Homework stayed on monitor desk"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: sadia_library=True"
-# #                 )
-# #             },
-
-# #             {
-# #                 "id": 3,
-
-# #                 "text": (
-# #                     "Omer was seen near the monitor's desk during recess. "
-# #                     "He failed the assignment last week and needed to copy it."
-# #                 ),
-
-# #                 "facts": {
-# #                     "copy_motive": True
-# #                 },
-
-# #                 "reason": {
-# #                     "weapon": "Copy motive implies hiding, not destroying"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: copy_motive=True"
-# #                 )
-# #             }
-# #         ],
-
-# #         "constraints": [
-
-# #             (
-# #                 "suspect",
-# #                 lambda v, kb:
-# #                     not (kb.get("hira_verified") and v == "Class Monitor Hira")
-# #             ),
-
-# #             (
-# #                 "suspect",
-# #                 lambda v, kb:
-# #                     not (kb.get("sadia_library") and v == "Classmate Sadia")
-# #             ),
-
-# #             (
-# #                 "location",
-# #                 lambda v, kb:
-# #                     kb.get("crime_scene") is None or
-# #                     v == kb.get("crime_scene")
-# #             ),
-
-# #             (
-# #                 "weapon",
-# #                 lambda v, kb:
-# #                     not kb.get("copy_motive") or
-# #                     v == "Hid it in bag"
-# #             )
-# #         ]
-# #     },
-
-# #     # ========================================================
-# #     # CASE 3
-# #     # ========================================================
-
-# #     3: {
-
-# #         "id": 3,
-# #         "level": "serious",
-# #         "difficulty": "Medium",
-# #         "emoji": "🏦",
-# #         "title": "The Bank Transfer",
-# #         "location": "HBL Branch, Lahore",
-
-# #         "description": (
-# #             "Rs. 50 million was secretly transferred from the main account at 11:47 PM. "
-# #             "Only three employees had after-hours keycard access and system credentials that night."
-# #         ),
-
-# #         "quote": (
-# #             "The transfer was authorized using valid credentials — only an insider could have done this."
-# #         ),
-
-# #         "suspects": [
-# #             "Kamran Malik",
-# #             "Sana Mirza",
-# #             "Usman Qureshi"
-# #         ],
-
-# #         "suspect_roles": {
-# #             "Kamran Malik": "Branch Manager",
-# #             "Sana Mirza": "IT Officer",
-# #             "Usman Qureshi": "Senior Teller"
-# #         },
-
-# #         "locations": [
-# #             "Server Room",
-# #             "Manager Office",
-# #             "Teller Counter",
-# #             "CCTV Room"
-# #         ],
-
-# #         "weapons": [
-# #             "Admin Password",
-# #             "Keycard Override",
-# #             "Insider Credentials"
-# #         ],
-
-# #         "solution": {
-# #             "culprit": "Sana Mirza",
-# #             "location": "Server Room",
-# #             "weapon": "Admin Password"
-# #         },
-
-# #         "clues": [
-
-# #             {
-# #                 "id": 1,
-
-# #                 "text": (
-# #                     "CCTV footage shows Usman Qureshi left the building at 10:30 PM."
-# #                 ),
-
-# #                 "facts": {
-# #                     "usman_left_early": True
-# #                 },
-
-# #                 "reason": {
-# #                     "suspect": "Usman absent during transfer"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: usman_left_early=True"
-# #                 )
-# #             },
-
-# #             {
-# #                 "id": 2,
-
-# #                 "text": (
-# #                     "The transfer originated from a terminal in the Server Room."
-# #                 ),
-
-# #                 "facts": {
-# #                     "crime_scene": "Server Room"
-# #                 },
-
-# #                 "reason": {
-# #                     "location": "Transfer originated only from server room"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: crime_scene=Server Room"
-# #                 )
-# #             },
-
-# #             {
-# #                 "id": 3,
-
-# #                 "text": (
-# #                     "Kamran Malik was on a video call with the regional director from 11 PM to midnight."
-# #                 ),
-
-# #                 "facts": {
-# #                     "kamran_alibi": True
-# #                 },
-
-# #                 "reason": {
-# #                     "suspect": "Kamran has verified alibi"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: kamran_alibi=True"
-# #                 )
-# #             },
-
-# #             {
-# #                 "id": 4,
-
-# #                 "text": (
-# #                     "The transaction required Admin Password — only the IT Officer holds this credential."
-# #                 ),
-
-# #                 "facts": {
-# #                     "admin_password_used": True
-# #                 },
-
-# #                 "reason": {
-# #                     "weapon": "Admin Password required"
-# #                 },
-
-# #                 "propagation": (
-# #                     "KB updated: admin_password_used=True"
-# #                 )
-# #             }
-# #         ],
-
-# #         "constraints": [
-
-# #             (
-# #                 "suspect",
-# #                 lambda v, kb:
-# #                     not (kb.get("usman_left_early") and v == "Usman Qureshi")
-# #             ),
-
-# #             (
-# #                 "suspect",
-# #                 lambda v, kb:
-# #                     not (kb.get("kamran_alibi") and v == "Kamran Malik")
-# #             ),
-
-# #             (
-# #                 "location",
-# #                 lambda v, kb:
-# #                     kb.get("crime_scene") is None or
-# #                     v == kb.get("crime_scene")
-# #             ),
-
-# #             (
-# #                 "weapon",
-# #                 lambda v, kb:
-# #                     not kb.get("admin_password_used") or
-# #                     v == "Admin Password"
-# #             )
-# #         ]
-# #     }
-
-# # }
-
-
-
-# CASES = {
-
-#     # ─────────────────────────────
-#     # CASE 1 (FULL ORIGINAL)
-#     # ─────────────────────────────
-
-#     1: {
-#         "id": 1,
-#         "level": "fun",
-#         "difficulty": "Easy",
-#         "emoji": "🍰",
-#         "title": "The Missing Cake Mystery",
-#         "location": "Home Kitchen",
-#         "description": (
-#             "Mom baked a beautiful chocolate cake and left it on the kitchen counter. "
-#             "One hour later — the cake was completely gone! Only three suspects were "
-#             "home at the time. Someone has a sweet tooth and a guilty conscience."
-#         ),
-#         "quote": "There were chocolate crumbs on the floor and small footprints near the counter...",
-#         "suspects": ["Brother Ali", "Sister Sara", "Dog Bruno"],
-#         "suspect_roles": {
-#             "Brother Ali": "12-year-old, loves chocolate",
-#             "Sister Sara": "8-year-old, just had lunch",
-#             "Dog Bruno": "Golden Retriever, always hungry"
-#         },
-#         "locations": ["Kitchen Counter", "Living Room", "Backyard", "Bedroom"],
-#         "weapons": ["Ate it directly", "Shared with friend", "Knocked it to floor"],
-#         "solution": {
-#             "culprit": "Dog Bruno",
-#             "location": "Kitchen Counter",
-#             "weapon": "Knocked it to floor"
-#         },
-#         "clues": [
-#             {
-#                 "id": 1,
-#                 "text": "Small paw-shaped chocolate prints were found on the kitchen floor leading to the backyard.",
-#                 "eliminates": {"suspects": ["Brother Ali", "Sister Sara"]},
-#                 "propagation": "Human footprints eliminated."
-#             },
-#             {
-#                 "id": 2,
-#                 "text": "The cake plate was on the floor, not neatly cut.",
-#                 "eliminates": {"weapons": ["Ate it directly", "Shared with friend"]},
-#                 "propagation": "Dog behavior confirmed."
-#             },
-#             {
-#                 "id": 3,
-#                 "text": "Sara was in living room the whole time.",
-#                 "eliminates": {"locations": ["Living Room", "Backyard", "Bedroom"]},
-#                 "propagation": "Crime location confirmed: Kitchen."
-#             }
-#         ]
-#     },
-
-#     # ─────────────────────────────
-#     # CASE 2 (FULL ORIGINAL)
-#     # ─────────────────────────────
-
-#     2: {
-#         "id": 2,
-#         "level": "fun",
-#         "difficulty": "Easy",
-#         "emoji": "📚",
-#         "title": "The Lost Homework Case",
-#         "location": "School Classroom 5B",
-#         "description": (
-#             "Hamza submitted his homework before recess. After recess, it disappeared."
-#         ),
-#         "quote": "Ink marks on desk and torn paper near window...",
-#         "suspects": ["Classmate Omer", "Class Monitor Hira", "Classmate Sadia"],
-#         "suspect_roles": {
-#             "Classmate Omer": "Failed last assignment",
-#             "Class Monitor Hira": "Collects homework",
-#             "Classmate Sadia": "Hamza’s friend"
-#         },
-#         "locations": ["Monitor Desk", "Window Side", "Classroom Door", "Teacher Table"],
-#         "weapons": ["Hid it in bag", "Threw it in bin", "Destroyed it"],
-#         "solution": {
-#             "culprit": "Classmate Omer",
-#             "location": "Monitor Desk",
-#             "weapon": "Hid it in bag"
-#         },
-#         "clues": [
-#             {
-#                 "id": 1,
-#                 "text": "Hira logged homework properly.",
-#                 "eliminates": {"suspects": ["Class Monitor Hira"]},
-#                 "propagation": "Monitor cleared."
-#             },
-#             {
-#                 "id": 2,
-#                 "text": "Sadia left immediately after recess.",
-#                 "eliminates": {"suspects": ["Classmate Sadia"], "locations": ["Window Side", "Classroom Door", "Teacher Table"]},
-#                 "propagation": "Sadia eliminated."
-#             }
-#         ]
-#     },
-
-#     # ─────────────────────────────
-#     # CASE 3 (FULL ORIGINAL BANK CASE)
-#     # ─────────────────────────────
-
-#     3: {
-#         "id": 3,
-#         "level": "serious",
-#         "difficulty": "Medium",
-#         "emoji": "🏦",
-#         "title": "The Bank Transfer",
-#         "location": "HBL Branch, Lahore",
-#         "description": (
-#             "Rs. 50 million was transferred at 11:47 PM using internal terminal."
-#         ),
-#         "quote": "Valid credentials used — insider only.",
-#         "suspects": ["Kamran Malik", "Sana Mirza", "Usman Qureshi"],
-#         "suspect_roles": {
-#             "Kamran Malik": "Branch Manager",
-#             "Sana Mirza": "IT Officer",
-#             "Usman Qureshi": "Senior Teller"
-#         },
-#         "locations": ["Server Room", "Manager Office", "Teller Counter", "CCTV Room"],
-#         "weapons": ["Admin Password", "Keycard Override", "Insider Credentials"],
-#         "solution": {
-#             "culprit": "Sana Mirza",
-#             "location": "Server Room",
-#             "weapon": "Admin Password"
-#         },
-#         "clues": [
-#             {
-#                 "id": 1,
-#                 "text": "Usman left early.",
-#                 "eliminates": {"suspects": ["Usman Qureshi"]},
-#                 "propagation": "Usman eliminated."
-#             },
-#             {
-#                 "id": 2,
-#                 "text": "Kamran had video call alibi.",
-#                 "eliminates": {"suspects": ["Kamran Malik"]},
-#                 "propagation": "Kamran eliminated."
-#             },
-#             {
-#                 "id": 3,
-#                 "text": "Server Room used for transfer.",
-#                 "eliminates": {"locations": ["Teller Counter", "Manager Office", "CCTV Room"]},
-#                 "propagation": "Location narrowed."
-#             }
-#         ]
-#     },
-
-#     # ─────────────────────────────
-#     # CASE 4 (FULL ORIGINAL)
-#     # ─────────────────────────────
-
-#     4: {
-#         "id": 4,
-#         "level": "serious",
-#         "difficulty": "Medium",
-#         "emoji": "🔬",
-#         "title": "The Stolen Research",
-#         "location": "NUST AI Lab, Islamabad",
-#         "description": "Defense project data leak at 2:14 AM.",
-#         "quote": "Only insiders had access.",
-#         "suspects": ["Dr. Ahmed Raza", "Aisha Nawaz", "Tariq Mehmood", "Zara Khan", "Hassan Iqbal"],
-#         "locations": ["Server Lab", "Conference Room", "Rooftop", "Parking", "Director Office"],
-#         "weapons": ["Decryption Key", "Remote Access", "USB Drive"],
-#         "solution": {
-#             "culprit": "Hassan Iqbal",
-#             "location": "Server Lab",
-#             "weapon": "Remote Access"
-#         },
-#         "clues": [
-#             {
-#                 "id": 1,
-#                 "text": "Ahmed had conference.",
-#                 "eliminates": {"suspects": ["Dr. Ahmed Raza"]},
-#                 "propagation": "Ahmed eliminated."
-#             },
-#             {
-#                 "id": 2,
-#                 "text": "USB ports disabled.",
-#                 "eliminates": {"weapons": ["USB Drive"]},
-#                 "propagation": "USB removed."
-#             },
-#             {
-#                 "id": 3,
-#                 "text": "Tariq had security duty.",
-#                 "eliminates": {"suspects": ["Tariq Mehmood"]},
-#                 "propagation": "Tariq eliminated."
-#             }
-#         ]
-#     },
-
-#     # ─────────────────────────────
-#     # CASE 5–7 (FULL ORIGINAL KEPT SAME STYLE)
-#     # ─────────────────────────────
-
-#     5: { "id": 5, "level": "serious", "difficulty": "Hard", "emoji": "🏢",
-#         "title": "Corporate Sabotage", "location": "TechCorp Karachi",
-#         "description": "Internal sabotage before launch.",
-#         "quote": "Insider knowledge required.",
-#         "suspects": ["Farhan Siddiqui","Nadia Hussain","Omar Sheikh","Rabia Tariq","Bilal Ahmed","Sara Zafar"],
-#         "locations": ["Server Room","CEO Office","Marketing Floor"],
-#         "weapons": ["Admin Override","Presentation Access","Database"],
-#         "solution": {"culprit":"Bilal Ahmed","location":"Server Room","weapon":"Admin Override"},
-#         "clues": [{"id":1,"text":"Exec accounts excluded.","eliminates":{"suspects":["Farhan Siddiqui","Nadia Hussain","Omar Sheikh","Rabia Tariq"]},"propagation":"Execs out."}]
-#     },
-
-#     6: { "id": 6, "level": "serious", "difficulty": "Hard", "emoji": "🏥",
-#         "title": "Hospital Poisoning", "location": "CMH Rawalpindi",
-#         "description": "Medication switched at night.",
-#         "quote": "Label replaced physically.",
-#         "suspects": ["Dr Imran Khalid","Nurse Hina Baig","Nurse Kamil Shah","Nurse Zoya Ahmed","Pharmacist Rashid","Ward Boy Saleem","Visitor Unknown"],
-#         "locations": ["Patient Room","Medicine Storage","Pharmacy"],
-#         "weapons": ["Label Replacement","Prescription Forgery","Key Duplication"],
-#         "solution": {"culprit":"Nurse Hina Baig","location":"Medicine Storage","weapon":"Label Replacement"},
-#         "clues": [{"id":1,"text":"Visitor left early.","eliminates":{"suspects":["Visitor Unknown"]},"propagation":"Visitor out."}]
-#     },
-
-#     7: { "id": 7, "level": "serious", "difficulty": "Expert", "emoji": "⚖️",
-#         "title": "Witness Disappearance", "location": "PC Lahore",
-#         "description": "Witness vanished before testimony.",
-#         "quote": "Last call at 11 PM.",
-#         "suspects": ["Advocate Zubair","Inspector Farooq","Tariq","Mehwish","Bilal","Asad","Samina","Naseer"],
-#         "locations": ["Room 204","Lobby","Service Exit"],
-#         "weapons": ["Intimidation","Bribery","Forced Removal"],
-#         "solution": {"culprit":"Inspector Farooq","location":"Service Exit","weapon":"Forced Removal"},
-#         "clues": [{"id":1,"text":"Lawyers left early.","eliminates":{"suspects":["Advocate Zubair","Advocate Samina"]},"propagation":"Lawyers out."}]
-#     },
-# }
-
-
-# cases.py
-
 CASES = {
 
-    # ─────────────────────────────
+    # ========================================================
     # CASE 1
-    # ─────────────────────────────
+    # ========================================================
+
     1: {
         "id": 1,
         "level": "fun",
@@ -1160,258 +458,460 @@ CASES = {
         "emoji": "🍰",
         "title": "The Missing Cake Mystery",
         "location": "Home Kitchen",
+
         "description": (
             "Mom baked a beautiful chocolate cake and left it on the kitchen counter. "
-            "One hour later — the cake was completely gone! Only three suspects were home at the time."
+            "One hour later — the cake was completely gone! Only three suspects were "
+            "home at the time. Someone has a sweet tooth and a guilty conscience."
         ),
-        "quote": "Chocolate crumbs and paw prints were found near the counter...",
-        "suspects": ["Brother Ali", "Sister Sara", "Dog Bruno"],
+
+        "quote": (
+            "There were chocolate crumbs on the floor and small footprints near the counter..."
+        ),
+
+        "suspects": [
+            "Brother Ali",
+            "Sister Sara",
+            "Dog Bruno"
+        ],
+
         "suspect_roles": {
             "Brother Ali": "12-year-old, loves chocolate",
             "Sister Sara": "8-year-old, just had lunch",
             "Dog Bruno": "Golden Retriever, always hungry"
         },
-        "locations": ["Kitchen Counter", "Living Room", "Backyard", "Bedroom"],
-        "weapons": ["Ate it directly", "Shared with friend", "Knocked it to floor"],
+
+        "locations": [
+            "Kitchen Counter",
+            "Living Room",
+            "Backyard",
+            "Bedroom"
+        ],
+
+        "weapons": [
+            "Ate it directly",
+            "Shared with friend",
+            "Knocked it to floor"
+        ],
+
         "solution": {
             "culprit": "Dog Bruno",
             "location": "Kitchen Counter",
             "weapon": "Knocked it to floor"
         },
+
         "clues": [
+
             {
                 "id": 1,
-                "text": "Paw prints were found near the kitchen counter.",
-                "eliminates": {"suspects": ["Brother Ali", "Sister Sara"]},
-                "propagation": "Human suspects eliminated."
+                "text": (
+                    "Small paw-shaped chocolate prints were found on the kitchen floor "
+                    "leading to the backyard."
+                ),
+
+                "facts": {
+                    "paw_prints": True
+                },
+
+                "reason": {
+                    "suspect": "Only Bruno matches paw prints"
+                },
+
+                "propagation": (
+                    "KB updated: paw_prints=True"
+                )
             },
+
             {
                 "id": 2,
-                "text": "Cake plate was on the floor.",
-                "eliminates": {"weapons": ["Ate it directly", "Shared with friend"]},
-                "propagation": "Knocked down, not eaten."
+                "text": (
+                    "The cake plate was found on the floor — not on the counter. "
+                    "It was knocked down, not carried."
+                ),
+
+                "facts": {
+                    "cake_knocked": True
+                },
+
+                "reason": {
+                    "weapon": "Only knocking behavior fits"
+                },
+
+                "propagation": (
+                    "KB updated: cake_knocked=True"
+                )
             },
+
             {
                 "id": 3,
-                "text": "Sara was in the living room the whole time.",
-                "eliminates": {"locations": ["Living Room", "Backyard", "Bedroom"]},
-                "propagation": "Only kitchen involved."
+                "text": (
+                    "Sister Sara was watching TV in the living room the entire time — "
+                    "Mom confirmed she never entered the kitchen."
+                ),
+
+                "facts": {
+                    "sara_alibi": True,
+                    "crime_scene": "Kitchen Counter"
+                },
+
+                "reason": {
+                    "suspect": "Sara has confirmed alibi",
+                    "location": "Crime occurred at kitchen counter"
+                },
+
+                "propagation": (
+                    "KB updated: sara_alibi=True, crime_scene=Kitchen Counter"
+                )
             }
+        ],
+
+        "constraints": [
+
+            (
+                "suspect",
+                lambda v, kb:
+                    not kb.get("paw_prints") or v == "Dog Bruno"
+            ),
+
+            (
+                "suspect",
+                lambda v, kb:
+                    not (kb.get("sara_alibi") and v == "Sister Sara")
+            ),
+
+            (
+                "location",
+                lambda v, kb:
+                    kb.get("crime_scene") is None or
+                    v == kb.get("crime_scene")
+            ),
+
+            (
+                "weapon",
+                lambda v, kb:
+                    not kb.get("cake_knocked") or
+                    v == "Knocked it to floor"
+            )
         ]
     },
 
-    # ─────────────────────────────
+    # ========================================================
     # CASE 2
-    # ─────────────────────────────
+    # ========================================================
+
     2: {
+
         "id": 2,
         "level": "fun",
         "difficulty": "Easy",
         "emoji": "📚",
         "title": "The Lost Homework Case",
-        "location": "Classroom 5B",
-        "description": "Homework disappeared after recess.",
-        "quote": "Ink marks on desk and torn paper.",
-        "suspects": ["Classmate Omer", "Class Monitor Hira", "Classmate Sadia"],
+        "location": "School Classroom 5B",
+
+        "description": (
+            "Hamza submitted his homework to the class monitor before recess. "
+            "After recess, the homework was missing from the monitor's desk. "
+            "The teacher is upset and Hamza could fail."
+        ),
+
+        "quote": (
+            "A torn notebook page was found near the window, and there were ink marks on the desk..."
+        ),
+
+        "suspects": [
+            "Classmate Omer",
+            "Class Monitor Hira",
+            "Classmate Sadia"
+        ],
+
         "suspect_roles": {
-            "Classmate Omer": "Weak student, motive to copy",
-            "Class Monitor Hira": "Collected homework",
-            "Classmate Sadia": "Friend of victim"
+            "Classmate Omer": "Sits next to monitor desk",
+            "Class Monitor Hira": "Responsible for homework collection",
+            "Classmate Sadia": "Best friend of Hamza"
         },
-        "locations": ["Monitor Desk", "Window Side", "Door", "Teacher Table"],
-        "weapons": ["Hid it in bag", "Threw it in bin", "Destroyed it"],
+
+        "locations": [
+            "Monitor Desk",
+            "Window Side",
+            "Classroom Door",
+            "Teacher Table"
+        ],
+
+        "weapons": [
+            "Hid it in bag",
+            "Threw it in bin",
+            "Accidentally destroyed it"
+        ],
+
         "solution": {
             "culprit": "Classmate Omer",
             "location": "Monitor Desk",
             "weapon": "Hid it in bag"
         },
+
         "clues": [
+
             {
                 "id": 1,
-                "text": "Hira logged homework properly.",
-                "eliminates": {"suspects": ["Class Monitor Hira"]},
-                "propagation": "Monitor cleared."
+
+                "text": (
+                    "Hira the monitor kept a log — she recorded receiving Hamza's homework before recess."
+                ),
+
+                "facts": {
+                    "hira_verified": True
+                },
+
+                "reason": {
+                    "suspect": "Hira correctly documented homework"
+                },
+
+                "propagation": (
+                    "KB updated: hira_verified=True"
+                )
             },
+
             {
                 "id": 2,
-                "text": "Sadia left immediately after recess.",
-                "eliminates": {"suspects": ["Classmate Sadia"]},
-                "propagation": "Sadia eliminated."
+
+                "text": (
+                    "Sadia left the classroom immediately after recess started — "
+                    "students saw her go to the library."
+                ),
+
+                "facts": {
+                    "sadia_library": True,
+                    "crime_scene": "Monitor Desk"
+                },
+
+                "reason": {
+                    "suspect": "Sadia absent during theft",
+                    "location": "Homework stayed on monitor desk"
+                },
+
+                "propagation": (
+                    "KB updated: sadia_library=True"
+                )
+            },
+
+            {
+                "id": 3,
+
+                "text": (
+                    "Omer was seen near the monitor's desk during recess. "
+                    "He failed the assignment last week and needed to copy it."
+                ),
+
+                "facts": {
+                    "copy_motive": True
+                },
+
+                "reason": {
+                    "weapon": "Copy motive implies hiding, not destroying"
+                },
+
+                "propagation": (
+                    "KB updated: copy_motive=True"
+                )
             }
+        ],
+
+        "constraints": [
+
+            (
+                "suspect",
+                lambda v, kb:
+                    not (kb.get("hira_verified") and v == "Class Monitor Hira")
+            ),
+
+            (
+                "suspect",
+                lambda v, kb:
+                    not (kb.get("sadia_library") and v == "Classmate Sadia")
+            ),
+
+            (
+                "location",
+                lambda v, kb:
+                    kb.get("crime_scene") is None or
+                    v == kb.get("crime_scene")
+            ),
+
+            (
+                "weapon",
+                lambda v, kb:
+                    not kb.get("copy_motive") or
+                    v == "Hid it in bag"
+            )
         ]
     },
 
-    # ─────────────────────────────
+    # ========================================================
     # CASE 3
-    # ─────────────────────────────
+    # ========================================================
+
     3: {
+
         "id": 3,
         "level": "serious",
         "difficulty": "Medium",
         "emoji": "🏦",
         "title": "The Bank Transfer",
-        "location": "HBL Lahore",
-        "description": "Rs. 50 million transferred via internal system.",
-        "quote": "Only insider access possible.",
-        "suspects": ["Kamran Malik", "Sana Mirza", "Usman Qureshi"],
+        "location": "HBL Branch, Lahore",
+
+        "description": (
+            "Rs. 50 million was secretly transferred from the main account at 11:47 PM. "
+            "Only three employees had after-hours keycard access and system credentials that night."
+        ),
+
+        "quote": (
+            "The transfer was authorized using valid credentials — only an insider could have done this."
+        ),
+
+        "suspects": [
+            "Kamran Malik",
+            "Sana Mirza",
+            "Usman Qureshi"
+        ],
+
         "suspect_roles": {
             "Kamran Malik": "Branch Manager",
             "Sana Mirza": "IT Officer",
-            "Usman Qureshi": "Teller"
+            "Usman Qureshi": "Senior Teller"
         },
-        "locations": ["Server Room", "Manager Office", "Teller Counter", "CCTV Room"],
-        "weapons": ["Admin Password", "Keycard Override", "Insider Credentials"],
+
+        "locations": [
+            "Server Room",
+            "Manager Office",
+            "Teller Counter",
+            "CCTV Room"
+        ],
+
+        "weapons": [
+            "Admin Password",
+            "Keycard Override",
+            "Insider Credentials"
+        ],
+
         "solution": {
             "culprit": "Sana Mirza",
             "location": "Server Room",
             "weapon": "Admin Password"
         },
+
         "clues": [
+
             {
                 "id": 1,
-                "text": "Usman left early.",
-                "eliminates": {"suspects": ["Usman Qureshi"]},
-                "propagation": "Usman eliminated."
+
+                "text": (
+                    "CCTV footage shows Usman Qureshi left the building at 10:30 PM."
+                ),
+
+                "facts": {
+                    "usman_left_early": True
+                },
+
+                "reason": {
+                    "suspect": "Usman absent during transfer"
+                },
+
+                "propagation": (
+                    "KB updated: usman_left_early=True"
+                )
             },
+
             {
                 "id": 2,
-                "text": "Kamran had alibi.",
-                "eliminates": {"suspects": ["Kamran Malik"]},
-                "propagation": "Kamran eliminated."
-            }
-        ]
-    },
 
-    # ─────────────────────────────
-    # CASE 4
-    # ─────────────────────────────
-    4: {
-        "id": 4,
-        "level": "serious",
-        "difficulty": "Medium",
-        "emoji": "🔬",
-        "title": "The Stolen Research",
-        "location": "NUST Lab",
-        "description": "Defense data leak.",
-        "quote": "Only insiders had access.",
-        "suspects": ["Dr. Ahmed Raza", "Aisha Nawaz", "Tariq Mehmood", "Zara Khan", "Hassan Iqbal"],
-        "suspect_roles": {
-    "Dr. Ahmed Raza": "Lead Researcher",
-    "Aisha Nawaz": "Data Analyst",
-    "Tariq Mehmood": "Security Officer",
-    "Zara Khan": "Junior Researcher",
-    "Hassan Iqbal": "System Administrator"
-},
-        "locations": ["Server Lab", "Conference Room", "Rooftop", "Parking", "Director Office"],
-        "weapons": ["Decryption Key", "Remote Access", "USB Drive"],
-        "solution": {
-            "culprit": "Hassan Iqbal",
-            "location": "Server Lab",
-            "weapon": "Remote Access"
-        },
-        "clues": [
+                "text": (
+                    "The transfer originated from a terminal in the Server Room."
+                ),
+
+                "facts": {
+                    "crime_scene": "Server Room"
+                },
+
+                "reason": {
+                    "location": "Transfer originated only from server room"
+                },
+
+                "propagation": (
+                    "KB updated: crime_scene=Server Room"
+                )
+            },
+
             {
-                "id": 1,
-                "text": "Ahmed had conference.",
-                "eliminates": {"suspects": ["Dr. Ahmed Raza"]},
-                "propagation": "Ahmed eliminated."
+                "id": 3,
+
+                "text": (
+                    "Kamran Malik was on a video call with the regional director from 11 PM to midnight."
+                ),
+
+                "facts": {
+                    "kamran_alibi": True
+                },
+
+                "reason": {
+                    "suspect": "Kamran has verified alibi"
+                },
+
+                "propagation": (
+                    "KB updated: kamran_alibi=True"
+                )
+            },
+
+            {
+                "id": 4,
+
+                "text": (
+                    "The transaction required Admin Password — only the IT Officer holds this credential."
+                ),
+
+                "facts": {
+                    "admin_password_used": True
+                },
+
+                "reason": {
+                    "weapon": "Admin Password required"
+                },
+
+                "propagation": (
+                    "KB updated: admin_password_used=True"
+                )
             }
+        ],
+
+        "constraints": [
+
+            (
+                "suspect",
+                lambda v, kb:
+                    not (kb.get("usman_left_early") and v == "Usman Qureshi")
+            ),
+
+            (
+                "suspect",
+                lambda v, kb:
+                    not (kb.get("kamran_alibi") and v == "Kamran Malik")
+            ),
+
+            (
+                "location",
+                lambda v, kb:
+                    kb.get("crime_scene") is None or
+                    v == kb.get("crime_scene")
+            ),
+
+            (
+                "weapon",
+                lambda v, kb:
+                    not kb.get("admin_password_used") or
+                    v == "Admin Password"
+            )
         ]
-    },
-
-    # ─────────────────────────────
-    # CASE 5
-    # ─────────────────────────────
-    5: {
-        "id": 5,
-        "level": "serious",
-        "difficulty": "Hard",
-        "emoji": "🏢",
-        "title": "Corporate Sabotage",
-        "location": "TechCorp Karachi",
-        "description": "Internal sabotage before launch.",
-        "quote": "Insider knowledge required.",
-        "suspects": ["Farhan Siddiqui","Nadia Hussain","Omar Sheikh","Rabia Tariq","Bilal Ahmed","Sara Zafar"],
-        "suspect_roles": {
-    "Farhan Siddiqui": "Chief Technology Officer",
-    "Nadia Hussain": "Chief Financial Officer",
-    "Omar Sheikh": "Head of Marketing",
-    "Rabia Tariq": "Head of HR",
-    "Bilal Ahmed": "Senior Developer",
-    "Sara Zafar": "Executive Intern"
-},
-        "locations": ["Server Room","CEO Office","Marketing Floor"],
-        "weapons": ["Admin Override","Presentation Access","Database"],
-        "solution": {
-            "culprit": "Bilal Ahmed",
-            "location": "Server Room",
-            "weapon": "Admin Override"
-        },
-        "clues": []
-    },
-
-    # ─────────────────────────────
-    # CASE 6
-    # ─────────────────────────────
-    6: {
-        "id": 6,
-        "level": "serious",
-        "difficulty": "Hard",
-        "emoji": "🏥",
-        "title": "Hospital Poisoning",
-        "location": "CMH Rawalpindi",
-        "description": "Medication switched at night.",
-        "quote": "Label replaced physically.",
-        "suspects": ["Dr Imran Khalid","Nurse Hina Baig","Nurse Kamil Shah","Nurse Zoya Ahmed","Pharmacist Rashid","Ward Boy Saleem","Visitor Unknown"],
-        "suspect_roles": {
-    "Dr Imran Khalid": "Night Shift Doctor",
-    "Nurse Hina Baig": "Head Nurse",
-    "Nurse Kamil Shah": "Ward Nurse",
-    "Nurse Zoya Ahmed": "Ward Nurse",
-    "Pharmacist Rashid": "On-call Pharmacist",
-    "Ward Boy Saleem": "Ward Assistant",
-    "Visitor Unknown": "Unregistered Visitor"
-},
-        "locations": ["Patient Room","Medicine Storage","Pharmacy"],
-        "weapons": ["Label Replacement","Prescription Forgery","Key Duplication"],
-        "solution": {
-            "culprit": "Nurse Hina Baig",
-            "location": "Medicine Storage",
-            "weapon": "Label Replacement"
-        },
-        "clues": []
-    },
-
-    # ─────────────────────────────
-    # CASE 7
-    # ─────────────────────────────
-    7: {
-        "id": 7,
-        "level": "serious",
-        "difficulty": "Expert",
-        "emoji": "⚖️",
-        "title": "Witness Disappearance",
-        "location": "PC Lahore",
-        "description": "Witness vanished.",
-        "quote": "Last call 11 PM.",
-        "suspects": ["Advocate Zubair","Inspector Farooq","Tariq","Mehwish","Bilal","Asad","Samina","Naseer"],
-        "suspect_roles": {
-    "Advocate Zubair": "Defense Lawyer",
-    "Inspector Farooq": "Investigating Officer",
-    "Tariq": "Accused Relative",
-    "Mehwish": "Accused Relative",
-    "Bilal": "Court Assistant",
-    "Asad": "Hotel Manager",
-    "Samina": "Prosecution Lawyer",
-    "Naseer": "Driver"
-},
-        "locations": ["Room 204","Lobby","Service Exit"],
-        "weapons": ["Intimidation","Bribery","Forced Removal"],
-        "solution": {
-            "culprit": "Inspector Farooq",
-            "location": "Service Exit",
-            "weapon": "Forced Removal"
-        },
-        "clues": []
     }
+
 }
+
+
