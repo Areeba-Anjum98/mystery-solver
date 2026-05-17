@@ -2,304 +2,594 @@ import streamlit as st
 from cases import CASES
 from csp_engine import CSPEngine
 
-# ─────────────────────────────────────────────
-# PAGE CONFIG
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  PAGE CONFIG
+# ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Mystery Solver",
-    page_icon="🔍",
+    page_icon="M",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ─────────────────────────────────────────────
-# ORIGINAL DETECTIVE CYAN THEME (RESTORED)
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  CUSTOM CSS
+# ─────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-.stApp {
-    background: linear-gradient(160deg, #0B0F14 0%, #111827 100%);
-}
+/* Main background */
+.stApp { background-color: #0f0f1a; }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background-color: #0D1117;
-    border-right: 1px solid #1E2A38;
+    background-color: #16213e;
+    border-right: 1px solid #2a2a4a;
 }
 
-/* Text */
-.stApp, .stMarkdown, p, span, label, div {
-    color: #E6EDF3 !important;
-}
+/* All text */
+.stApp, .stMarkdown, p, span, label { color: #e0dff0 !important; }
 
-h1, h2, h3 {
-    color: #F9FAFB !important;
-}
+/* Headings */
+h1, h2, h3 { color: #ffffff !important; }
 
 /* Buttons */
 .stButton > button {
-    background-color: #4FD1C5;
-    color: #0B0F14 !important;
+    background-color: #e94560;
+    color: white !important;
+    border: none;
     border-radius: 8px;
-    font-weight: 700;
+    padding: 10px 20px;
+    font-weight: 600;
     width: 100%;
-    transition: 0.2s;
+    letter-spacing: 0.02em;
+    transition: background 0.2s;
 }
 .stButton > button:hover {
-    background-color: #38B2AC;
-    transform: translateY(-1px);
+    background-color: #c73652;
+    color: white !important;
 }
 
 /* Cards */
 .case-card {
-    background: #1B2430;
-    border: 1px solid #1E2A38;
+    background: #1a1a2e;
+    border: 1px solid #2a2a4a;
     border-radius: 12px;
     padding: 16px;
     margin: 8px 0;
 }
-
 .solved-card {
-    background: #0D2B1E;
-    border: 1px solid #10B981;
+    background: #0d2b1e;
+    border: 1px solid #1d9e75;
     border-radius: 12px;
     padding: 16px;
+    margin: 8px 0;
 }
-
-/* Clues */
 .clue-card-done {
-    background: #111827;
-    border-left: 3px solid #10B981;
-    padding: 12px;
+    background: #0d2b1e;
+    border-left: 3px solid #1d9e75;
     border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    margin: 6px 0;
 }
-
-/* CSP logs */
 .prop-step {
-    background: #0D1117;
-    border: 1px solid #1E2A38;
+    background: #12122a;
+    border: 1px solid #2a2a4a;
     border-radius: 8px;
-    padding: 10px;
+    padding: 8px 12px;
+    margin: 4px 0;
     font-family: monospace;
-    font-size: 12px;
+    font-size: 13px;
+    color: #a0d4b8 !important;
+    line-height: 1.6;
 }
 
-/* Badges */
-.badge-easy {background:#064E3B;color:#34D399;padding:3px 8px;border-radius:4px;}
-.badge-medium {background:#451A03;color:#FBBF24;padding:3px 8px;border-radius:4px;}
-.badge-hard {background:#450A0A;color:#F87171;padding:3px 8px;border-radius:4px;}
-.badge-expert {background:#2E1065;color:#C084FC;padding:3px 8px;border-radius:4px;}
+/* Difficulty badges */
+.badge-easy   { background:#0d2b1e; color:#4ade80; padding:3px 10px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-medium { background:#2b1e0d; color:#fb923c; padding:3px 10px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-hard   { background:#2b0d0d; color:#f87171; padding:3px 10px; border-radius:4px; font-size:12px; font-weight:600; }
+.badge-expert { background:#1e0d2b; color:#c084fc; padding:3px 10px; border-radius:4px; font-size:12px; font-weight:600; }
 
-/* Domains */
+/* Domain pills */
 .domain-active {
-    background:#0D2B1E;color:#34D399;padding:4px 10px;
-    border-radius:4px;display:inline-block;margin:2px;
+    background: #1d3a2a;
+    color: #4ade80;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: inline-block;
+    margin: 2px;
+    font-weight: 500;
 }
 .domain-elim {
-    background:#111827;color:#374151;text-decoration:line-through;
-    padding:4px 10px;border-radius:4px;display:inline-block;margin:2px;
+    background: #1a1a2e;
+    color: #555577;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: inline-block;
+    margin: 2px;
+    text-decoration: line-through;
 }
+
+/* Selectbox label */
+.stSelectbox label { color: #e0dff0 !important; }
+
+/* Progress bar */
+.stProgress > div > div { background-color: #e94560 !important; }
+
+/* Alerts */
+.stSuccess { background: #0d2b1e !important; border: 1px solid #1d9e75 !important; }
+.stError   { background: #2b0d0d !important; border: 1px solid #e94560 !important; }
+.stWarning { background: #2b1e0d !important; border: 1px solid #f59e0b !important; }
+.stInfo    { background: #0d1f2b !important; border: 1px solid #378ADD !important; }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────
-# SESSION STATE
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  SESSION STATE INITIALISATION
+# ─────────────────────────────────────────────────────────────
 def init_state():
     defaults = {
-        "screen": "home",
+        "screen":          "home",
         "current_case_id": None,
-        "csp": None,
-        "clues_revealed": 0,
-        "score": 0,
+        "csp":             None,
+        "clues_revealed":  0,
+        "score":           0,
         "completed_cases": [],
-        "case_stars": {},
-        "wrong_attempts": 0,
+        "case_stars":      {},
+        "wrong_attempts":  0,
+        "verdict_correct": None,
     }
-    for k, v in defaults.items():
-        if k not in st.session_state:
-            st.session_state[k] = v
+    for key, val in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = val
 
 init_state()
 
 
-# ─────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────
-def stars_from_clues(u, t):
-    return 3 if u/t <= 0.5 else 2 if u/t <= 0.75 else 1
+# ─────────────────────────────────────────────────────────────
+#  HELPER FUNCTIONS
+# ─────────────────────────────────────────────────────────────
+def stars_from_clues(clues_used: int, total_clues: int) -> int:
+    ratio = clues_used / total_clues
+    if ratio <= 0.5:
+        return 3
+    elif ratio <= 0.75:
+        return 2
+    return 1
 
-def badge(d):
-    return f'<span class="badge-{d.lower()}">{d}</span>'
+def badge_html(difficulty: str) -> str:
+    return f'<span class="badge-{difficulty.lower()}">{difficulty}</span>'
 
-def domain(items, all_items):
-    return "".join(
-        f'<span class="domain-active">{i}</span>' if i in items
-        else f'<span class="domain-elim">{i}</span>'
-        for i in all_items
+def domain_pills(active: list, all_items: list) -> str:
+    html = ""
+    for item in all_items:
+        if item in active:
+            html += f'<span class="domain-active">[+] {item}</span>'
+        else:
+            html += f'<span class="domain-elim">{item}</span>'
+    return html
+
+def star_display(count: int) -> str:
+    # HTML star entities — no emoji needed
+    filled = "&#9733;" * count
+    empty  = "&#9734;" * (3 - count)
+    return (
+        f'<span style="color:#f59e0b; font-size:22px;">{filled}</span>'
+        f'<span style="color:#444; font-size:22px;">{empty}</span>'
     )
 
-def start_case(cid):
-    st.session_state.current_case_id = cid
-    st.session_state.csp = CSPEngine(CASES[cid])
-    st.session_state.clues_revealed = 0
-    st.session_state.screen = "game"
+def start_case(case_id: int):
+    case = CASES[case_id]
+    st.session_state.current_case_id = case_id
+    st.session_state.csp             = CSPEngine(case)
+    st.session_state.clues_revealed  = 0
+    st.session_state.wrong_attempts  = 0
+    st.session_state.verdict_correct = None
+    st.session_state.screen          = "game"
 
 def go_home():
-    st.session_state.screen = "home"
+    st.session_state.screen          = "home"
     st.session_state.current_case_id = None
-    st.session_state.csp = None
+    st.session_state.csp             = None
 
 
-# ─────────────────────────────────────────────
-# SIDEBAR
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  SIDEBAR
+# ─────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.title("🔍 Mystery Solver")
-    st.write("CSP Detective Game")
+    st.markdown("## Mystery Solver")
+    st.markdown("*A CSP-Based Detective Game*")
     st.divider()
 
-    st.write(f"🏆 Score: {st.session_state.score}")
-    st.write(f"✅ Solved: {len(st.session_state.completed_cases)}")
+    st.markdown(f"**Total Score:** `{st.session_state.score}`")
+    st.markdown(f"**Cases Solved:** `{len(st.session_state.completed_cases)}`")
     st.divider()
 
+    st.markdown("### All Cases")
     for cid, case in CASES.items():
-        label = f"{case['title']}"
-        if st.button(label, key=f"s_{cid}"):
+        stars    = st.session_state.case_stars.get(cid, 0)
+        star_str = " [" + ("*" * stars) + "]" if stars else ""
+        status   = "[Solved]" if cid in st.session_state.completed_cases else "[Open]"
+        label    = f"{status} Case {cid} — {case['title']}{star_str}"
+        if st.button(label, key=f"sb_{cid}"):
             start_case(cid)
             st.rerun()
 
     st.divider()
-    if st.button("🏠 Home"):
-        go_home()
-        st.rerun()
+
+    with st.expander("AI Concepts Used"):
+        st.markdown("""
+**CSP (Constraint Satisfaction)**
+- Variables: Suspect, Location, Weapon
+- Domains: All possible values at start
+- Constraints: Each clue removes values
+
+**Constraint Propagation**
+- Each clue triggers elimination
+- Chain reaction across all domains
+
+**Arc Consistency (AC-3)**
+- Ensures consistency between variables
+- Reduces domains automatically
+
+**Backtracking**
+- Used when red herrings appear
+- Explores alternatives if stuck
+
+**Logical Agents**
+- Knowledge base updates per clue
+- IF-THEN deduction rules applied
+        """)
+
+    if st.session_state.screen != "home":
+        st.divider()
+        if st.button("Back to Home"):
+            go_home()
+            st.rerun()
 
 
-# ─────────────────────────────────────────────
-# HOME SCREEN
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  SCREEN 1 — HOME
+# ─────────────────────────────────────────────────────────────
 if st.session_state.screen == "home":
 
-    st.title("🔍 Mystery Solver")
+    st.markdown("# Mystery Solver")
+    st.markdown("### Use clues and logic to find the culprit. Each clue eliminates suspects using CSP.")
+    st.divider()
 
-    st.subheader("Fun Cases")
-    for cid, case in CASES.items():
-        if case["level"] == "fun":
+    # Introductory cases
+    st.markdown("## Introductory Cases — Warm Up")
+    fun_cols  = st.columns(2)
+    fun_cases = {k: v for k, v in CASES.items() if v["level"] == "fun"}
+
+    for i, (cid, case) in enumerate(fun_cases.items()):
+        with fun_cols[i % 2]:
+            stars    = st.session_state.case_stars.get(cid, 0)
+            star_str = " [" + ("*" * stars) + "]" if stars else ""
+            status   = "SOLVED" if cid in st.session_state.completed_cases else "NOT STARTED"
+            s_color  = "#4ade80" if cid in st.session_state.completed_cases else "#888"
             st.markdown(f"""
-            <div class="case-card">
-                <h3>{case['title']}</h3>
-                <p>{case['description'][:120]}...</p>
-                <p>{badge(case['difficulty'])}</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-            if st.button(f"Start {case['title']}", key=f"f_{cid}"):
+<div class="case-card">
+    <h3 style="color:#fff;">{case['title']}</h3>
+    <p style="color:#aaa; font-size:12px; margin:2px 0;">{case['location']}</p>
+    <p style="margin:8px 0;">{case['description'][:120]}...</p>
+    <p>
+        {badge_html(case['difficulty'])}
+        &nbsp;
+        <span style="color:{s_color}; font-size:12px; font-weight:600;">{status}{star_str}</span>
+    </p>
+    <p style="color:#666; font-size:12px;">
+        {len(case['suspects'])} suspects &nbsp;|&nbsp;
+        {len(case['locations'])} locations &nbsp;|&nbsp;
+        {len(case['clues'])} clues
+    </p>
+</div>
+""", unsafe_allow_html=True)
+            btn_label = f"Replay — {case['title']}" if cid in st.session_state.completed_cases else f"Start — {case['title']}"
+            if st.button(btn_label, key=f"start_{cid}"):
                 start_case(cid)
                 st.rerun()
-
-    st.subheader("Serious Cases")
-    for cid, case in CASES.items():
-        if case["level"] == "serious":
-            st.markdown(f"""
-            <div class="case-card">
-                <h3>{case['title']}</h3>
-                <p>{case['description'][:120]}...</p>
-                <p>{badge(case['difficulty'])}</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-            if st.button(f"Start {case['title']}", key=f"c_{cid}"):
-                start_case(cid)
-                st.rerun()
-
-
-# ─────────────────────────────────────────────
-# GAME SCREEN
-# ─────────────────────────────────────────────
-elif st.session_state.screen == "game":
-
-    case = CASES[st.session_state.current_case_id]
-    csp = st.session_state.csp
-    total = len(case["clues"])
-    revealed = st.session_state.clues_revealed
-
-    st.title(f"{case['title']}")
-
-    st.progress(revealed / total if total else 0)
-
-    state = csp.get_current_state()
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("Suspects")
-        for s in case["suspects"]:
-            st.write("🟡 " + s if s in state["suspect_domain"] else "❌ " + s)
-
-        st.subheader("Locations")
-        st.markdown(domain(state["location_domain"], case["locations"]), unsafe_allow_html=True)
-
-        st.subheader("Weapons")
-        st.markdown(domain(state["weapon_domain"], case["weapons"]), unsafe_allow_html=True)
-
-    with col2:
-        st.subheader("Clues")
-
-        for i in range(revealed):
-            st.markdown(f'<div class="clue-card-done">Clue {i+1}: {case["clues"][i]["text"]}</div>',
-                        unsafe_allow_html=True)
-
-        if revealed < total:
-            if st.button("Reveal Clue"):
-                csp.apply_clue(case["clues"][revealed])
-                st.session_state.clues_revealed += 1
-                st.rerun()
-
-        st.subheader("CSP Log")
-        for log in state["propagation_log"]:
-            st.markdown(f'<div class="prop-step">{log["propagation"]}</div>',
-                        unsafe_allow_html=True)
 
     st.divider()
 
-    st.subheader("Accusation")
+    # Investigation cases
+    st.markdown("## Investigation Cases — Real Mysteries")
+    serious_cases = {k: v for k, v in CASES.items() if v["level"] == "serious"}
+    cols = st.columns(3)
 
-    s = st.selectbox("Suspect", case["suspects"])
-    l = st.selectbox("Location", case["locations"])
-    w = st.selectbox("Weapon", case["weapons"])
+    for i, (cid, case) in enumerate(serious_cases.items()):
+        with cols[i % 3]:
+            stars    = st.session_state.case_stars.get(cid, 0)
+            star_str = " [" + ("*" * stars) + "]" if stars else ""
+            status   = "SOLVED" if cid in st.session_state.completed_cases else "NOT STARTED"
+            s_color  = "#4ade80" if cid in st.session_state.completed_cases else "#888"
+            st.markdown(f"""
+<div class="case-card">
+    <h3 style="color:#fff;">{case['title']}</h3>
+    <p style="color:#aaa; font-size:12px; margin:2px 0;">{case['location']}</p>
+    <p style="margin:8px 0;">{case['description'][:110]}...</p>
+    <p>
+        {badge_html(case['difficulty'])}
+        &nbsp;
+        <span style="color:{s_color}; font-size:12px; font-weight:600;">{status}{star_str}</span>
+    </p>
+    <p style="color:#666; font-size:12px;">
+        {len(case['suspects'])} suspects &nbsp;|&nbsp;
+        {len(case['locations'])} locations &nbsp;|&nbsp;
+        {len(case['clues'])} clues
+    </p>
+</div>
+""", unsafe_allow_html=True)
+            btn_label = f"Replay — {case['title']}" if cid in st.session_state.completed_cases else f"Start — {case['title']}"
+            if st.button(btn_label, key=f"start_{cid}"):
+                start_case(cid)
+                st.rerun()
 
-    if st.button("Submit"):
-        if csp.verify_accusation(s, l, w):
-            stars = stars_from_clues(revealed, total)
-            st.session_state.score += stars * 100
-            st.session_state.completed_cases.append(st.session_state.current_case_id)
+
+# ─────────────────────────────────────────────────────────────
+#  SCREEN 2 — GAME
+# ─────────────────────────────────────────────────────────────
+elif st.session_state.screen == "game":
+
+    case        = CASES[st.session_state.current_case_id]
+    csp         = st.session_state.csp
+    total_clues = len(case["clues"])
+    revealed    = st.session_state.clues_revealed
+
+    # Top bar
+    col_title, col_meta = st.columns([2, 1])
+    with col_title:
+        st.markdown(f"# {case['title']}")
+        st.markdown(f"*Location: {case['location']}*")
+    with col_meta:
+        st.markdown(f"**Clues Used:** {revealed} / {total_clues}")
+        st.progress(revealed / total_clues if total_clues else 0)
+        st.markdown(f"**Score:** {st.session_state.score}")
+
+    st.divider()
+
+    # Case description
+    with st.expander("Case Description", expanded=True):
+        st.markdown(f"*{case['description']}*")
+        st.info(f"\"{case['quote']}\"")
+
+    st.divider()
+
+    # Main layout
+    left_col, right_col = st.columns([1, 1])
+
+    # LEFT — Suspects and Domains
+    with left_col:
+
+        st.markdown("### Suspects")
+        state = csp.get_current_state()
+
+        for suspect in case["suspects"]:
+            role = case["suspect_roles"][suspect]
+            if suspect in state["suspect_domain"]:
+                label_color  = "#d4af37"
+                status_label = "ACTIVE"
+                border_color = "#d4af37"
+            else:
+                label_color  = "#555577"
+                status_label = "ELIMINATED"
+                border_color = "#2a2a4a"
+            st.markdown(
+                f'<div style="background:#1a1a2e; border-radius:8px; '
+                f'padding:9px 14px; margin:5px 0; border-left:3px solid {border_color};">'
+                f'<span style="color:{label_color}; font-weight:600;">{suspect}</span>'
+                f'<span style="color:#666; font-size:11px;"> — {role}</span>'
+                f'<span style="float:right; font-size:11px; font-weight:600; color:{label_color};">'
+                f'{status_label}</span>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+        st.markdown("### Locations")
+        st.markdown(
+            domain_pills(state["location_domain"], case["locations"]),
+            unsafe_allow_html=True
+        )
+
+        st.markdown("### Methods / Weapons")
+        st.markdown(
+            domain_pills(state["weapon_domain"], case["weapons"]),
+            unsafe_allow_html=True
+        )
+
+    # RIGHT — Clues and Propagation
+    with right_col:
+
+        st.markdown("### Clues Revealed")
+
+        for i in range(revealed):
+            clue = case["clues"][i]
+            st.markdown(
+                f'<div class="clue-card-done">'
+                f'<span style="color:#1d9e75; font-weight:600;">Clue {clue["id"]}:</span> '
+                f'{clue["text"]}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+        if revealed < total_clues:
+            if st.button(f"Reveal Clue {revealed + 1}", use_container_width=True):
+                clue = case["clues"][revealed]
+                csp.apply_clue(clue)
+                st.session_state.clues_revealed += 1
+                st.rerun()
+        else:
+            st.success("All clues have been revealed. Make your accusation below.")
+
+        st.markdown("### CSP Propagation Trace")
+        log = csp.get_current_state()["propagation_log"]
+
+        if not log:
+            st.markdown(
+                '<div class="prop-step" style="color:#555577 !important;">'
+                'No clues applied yet. Reveal the first clue to begin.'
+                '</div>',
+                unsafe_allow_html=True
+            )
+        for entry in log:
+            st.markdown(
+                f'<div class="prop-step">'
+                f'<span style="color:#e94560; font-weight:600;">[ Clue {entry["clue_id"]} ]</span> '
+                f'{entry["propagation"]}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+    st.divider()
+
+    # Accusation section
+    st.markdown("### Make Your Accusation")
+
+    if csp.get_current_state()["solved"]:
+        st.info("CSP has logically solved the case. Confirm your accusation below.")
+
+    acc_col1, acc_col2, acc_col3 = st.columns(3)
+
+    with acc_col1:
+        suspect_choice = st.selectbox(
+            "Who is the culprit?",
+            options=case["suspects"],
+            index=0
+        )
+    with acc_col2:
+        location_choice = st.selectbox(
+            "Where did it happen?",
+            options=case["locations"],
+            index=0
+        )
+    with acc_col3:
+        weapon_choice = st.selectbox(
+            "What method was used?",
+            options=case["weapons"],
+            index=0
+        )
+
+    st.warning("Warning: A wrong accusation will reset your progress on this case.")
+
+    if st.button("Submit Accusation", use_container_width=True):
+        correct = csp.verify_accusation(suspect_choice, location_choice, weapon_choice)
+        if correct:
+            stars  = stars_from_clues(revealed, total_clues)
+            points = stars * 100 + max(0, (total_clues - revealed) * 20)
+            st.session_state.score += points
+            st.session_state.case_stars[st.session_state.current_case_id] = stars
+            if st.session_state.current_case_id not in st.session_state.completed_cases:
+                st.session_state.completed_cases.append(st.session_state.current_case_id)
+            st.session_state.verdict_correct = True
             st.session_state.screen = "verdict"
             st.rerun()
         else:
-            st.error("Wrong accusation!")
+            st.session_state.wrong_attempts += 1
+            st.error(
+                f"Incorrect accusation. That is not the right answer. "
+                f"({st.session_state.wrong_attempts} wrong attempt(s)). "
+                f"Reveal more clues and try again."
+            )
 
 
-# ─────────────────────────────────────────────
-# VERDICT SCREEN
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  SCREEN 3 — VERDICT
+# ─────────────────────────────────────────────────────────────
 elif st.session_state.screen == "verdict":
 
-    case = CASES[st.session_state.current_case_id]
-    csp = st.session_state.csp
-    sol = case["solution"]
+    case     = CASES[st.session_state.current_case_id]
+    csp      = st.session_state.csp
+    stars    = st.session_state.case_stars.get(st.session_state.current_case_id, 1)
+    solution = case["solution"]
+    points   = stars * 100 + max(0, (len(case["clues"]) - st.session_state.clues_revealed) * 20)
 
-    st.success("Case Solved!")
+    st.markdown(f"# Case Closed — {case['title']}")
+    st.markdown("---")
 
+    # Verdict card
     st.markdown(f"""
-    <div class="solved-card">
-        <h3>Solution</h3>
-        <p>Culprit: {sol['culprit']}</p>
-        <p>Location: {sol['location']}</p>
-        <p>Weapon: {sol['weapon']}</p>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="solved-card">
+    <h2 style="color:#4ade80;">Accusation Correct. Case Solved.</h2>
+    <br>
+    <table width="100%">
+        <tr>
+            <td style="color:#888; padding:6px 0; width:160px;">Culprit</td>
+            <td style="color:#fff; font-weight:bold;">{solution['culprit']}</td>
+        </tr>
+        <tr>
+            <td style="color:#888; padding:6px 0;">Location</td>
+            <td style="color:#fff; font-weight:bold;">{solution['location']}</td>
+        </tr>
+        <tr>
+            <td style="color:#888; padding:6px 0;">Method Used</td>
+            <td style="color:#fff; font-weight:bold;">{solution['weapon']}</td>
+        </tr>
+        <tr>
+            <td style="color:#888; padding:6px 0;">Clues Used</td>
+            <td style="color:#fff; font-weight:bold;">{st.session_state.clues_revealed} / {len(case['clues'])}</td>
+        </tr>
+        <tr>
+            <td style="color:#888; padding:6px 0;">CSP Steps</td>
+            <td style="color:#fff; font-weight:bold;">{len(csp.get_current_state()['propagation_log'])} propagations</td>
+        </tr>
+        <tr>
+            <td style="color:#888; padding:6px 0;">Points Earned</td>
+            <td style="color:#f59e0b; font-weight:bold;">{points} pts</td>
+        </tr>
+    </table>
+    <br>
+    <p style="font-size:13px; color:#888; margin-bottom:6px;">Rating</p>
+    {star_display(stars)}
+</div>
+""", unsafe_allow_html=True)
 
-    if st.button("Home"):
-        go_home()
-        st.rerun()
+    # Full CSP reasoning trace
+    st.markdown("### Full CSP Reasoning Trace")
+
+    for entry in csp.get_current_state()["propagation_log"]:
+        eliminated = []
+        if entry["changed"]["suspects"]:
+            eliminated.append(f"Suspects removed: {', '.join(entry['changed']['suspects'])}")
+        if entry["changed"]["locations"]:
+            eliminated.append(f"Locations removed: {', '.join(entry['changed']['locations'])}")
+        if entry["changed"]["weapons"]:
+            eliminated.append(f"Weapons removed: {', '.join(entry['changed']['weapons'])}")
+        elim_text = " | ".join(eliminated) if eliminated else "No direct eliminations — contextual reasoning applied"
+
+        st.markdown(f"""
+<div class="prop-step">
+    <span style="color:#e94560; font-weight:600;">[ Clue {entry['clue_id']} ]</span> {entry['clue_text']}<br>
+    <span style="color:#f59e0b;">&gt;&gt; {entry['propagation']}</span><br>
+    <span style="color:#60a5fa;">&gt;&gt; {elim_text}</span>
+</div>
+""", unsafe_allow_html=True)
+
+    st.divider()
+
+    # Navigation
+    btn_col1, btn_col2, btn_col3 = st.columns(3)
+
+    with btn_col1:
+        if st.button("Back to Home", use_container_width=True):
+            go_home()
+            st.rerun()
+
+    with btn_col2:
+        if st.button("Replay This Case", use_container_width=True):
+            start_case(st.session_state.current_case_id)
+            st.rerun()
+
+    with btn_col3:
+        next_case = None
+        for cid in CASES:
+            if cid not in st.session_state.completed_cases:
+                next_case = cid
+                break
+        if next_case:
+            if st.button(f"Next Case — {CASES[next_case]['title']}", use_container_width=True):
+                start_case(next_case)
+                st.rerun()
+        else:
+            st.success("All cases solved. You are the ultimate detective.")
