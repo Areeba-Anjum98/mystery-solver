@@ -501,5 +501,163 @@ CASES = {
                 "propagation": "All other suspects eliminated. Inspector Farooq is the only one with means, motive, and access. Case solved."
             }
         ]
-    }
+    },
+
+    8: {
+    "id": 8,
+    "level": "serious",
+    "difficulty": "Expert",
+    "emoji": "🎓",
+    "title": "The Exam Paper Leak",
+    "location": "University Examination Cell, Islamabad",
+
+    "description": (
+        "One night before the final semester exam, the Computer Science "
+        "paper was leaked online anonymously. The university launched an "
+        "internal investigation after students began sharing screenshots "
+        "of the paper in private groups at 1:20 AM."
+    ),
+
+    "quote": (
+        "The paper could only be accessed from the secure examination server."
+    ),
+
+    "suspects": [
+        "Professor Hamid",
+        "Lab Engineer Danish",
+        "Assistant Lecturer Hira",
+        "Student Rep Ali",
+        "Exam Officer Sana"
+    ],
+
+    "suspect_roles": {
+        "Professor Hamid": "Course Instructor",
+        "Lab Engineer Danish": "Maintains university servers",
+        "Assistant Lecturer Hira": "Prepared formatting",
+        "Student Rep Ali": "Student coordinator",
+        "Exam Officer Sana": "Controls exam printing"
+    },
+
+    "locations": [
+        "Examination Server Room",
+        "Faculty Office",
+        "Printing Room",
+        "Computer Lab",
+        "Admin Block"
+    ],
+
+    "weapons": [
+        "USB Copy",
+        "Remote Login",
+        "Printed Leak"
+    ],
+
+    "solution": {
+        "culprit": "Lab Engineer Danish",
+        "location": "Examination Server Room",
+        "weapon": "Remote Login"
+    },
+
+    "constraints": [],
+
+    "clues": [
+
+        {
+            "id": 1,
+            "text": (
+                "Student Rep Ali never entered the admin building that night. "
+                "Security guards confirmed he left campus at 8 PM."
+            ),
+
+            "eliminates": {
+                "suspects": ["Student Rep Ali"]
+            },
+
+            "propagation":
+                "Student Rep Ali eliminated — left campus long before leak occurred."
+        },
+
+        {
+            "id": 2,
+            "text": (
+                "The leaked file metadata showed it was copied digitally, "
+                "not photographed or physically printed."
+            ),
+
+            "eliminates": {
+                "weapons": ["Printed Leak"]
+            },
+
+            "propagation":
+                "Printed Leak eliminated. Leak happened through digital access."
+        },
+
+        {
+            "id": 3,
+            "text": (
+                "Professor Hamid was conducting a live online viva session "
+                "from 11 PM to 2 AM with external examiners."
+            ),
+
+            "eliminates": {
+                "suspects": ["Professor Hamid"]
+            },
+
+            "propagation":
+                "Professor Hamid has verified alibi during entire leak window."
+        },
+
+        {
+            "id": 4,
+            "text": (
+                "Exam Officer Sana only had access to printed copies — "
+                "not the secure digital examination server."
+            ),
+
+            "eliminates": {
+                "suspects": ["Exam Officer Sana"]
+            },
+
+            "propagation":
+                "Exam Officer Sana lacked digital server access. Eliminated."
+        },
+
+        {
+            "id": 5,
+            "text": (
+                "Assistant Lecturer Hira prepared formatting but her account "
+                "permissions were read-only and could not export files."
+            ),
+
+            "eliminates": {
+                "suspects": ["Assistant Lecturer Hira"]
+            },
+
+            "propagation":
+                "Assistant Lecturer Hira lacked export permissions. Eliminated."
+        },
+
+        {
+            "id": 6,
+            "text": (
+                "Server logs show a remote login from the Examination Server Room "
+                "using administrator credentials assigned to Lab Engineer Danish."
+            ),
+
+            "eliminates": {
+                "locations": [
+                    "Faculty Office",
+                    "Printing Room",
+                    "Computer Lab",
+                    "Admin Block"
+                ],
+                "weapons": ["USB Copy"]
+            },
+
+            "propagation":
+                "Only Examination Server Room remains. Remote Login confirmed. "
+                "Lab Engineer Danish is the only suspect with matching credentials."
+        }
+    ]
+}
 }
