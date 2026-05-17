@@ -3,7 +3,7 @@ from cases import CASES
 from csp_engine import CSPEngine
 
 # ─────────────────────────────────────────────────────────────
-#  PAGE CONFIG
+# PAGE CONFIG
 # ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Mystery Solver",
@@ -13,9 +13,10 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────────────────────
-#  CUSTOM CSS (UNCHANGED)
+# ORIGINAL DARK THEME CSS (RESTORED)
 # ─────────────────────────────────────────────────────────────
-st.markdown("""<style>
+st.markdown("""
+<style>
 .stApp { background-color: #0f0f1a; }
 
 [data-testid="stSidebar"] {
@@ -23,9 +24,13 @@ st.markdown("""<style>
     border-right: 1px solid #2a2a4a;
 }
 
-.stApp, .stMarkdown, p, span, label { color: #e0dff0 !important; }
+.stApp, .stMarkdown, p, span, label, div {
+    color: #e0dff0 !important;
+}
+
 h1, h2, h3 { color: #ffffff !important; }
 
+/* Buttons */
 .stButton > button {
     background-color: #e94560;
     color: white !important;
@@ -34,13 +39,13 @@ h1, h2, h3 { color: #ffffff !important; }
     padding: 10px 20px;
     font-weight: 600;
     width: 100%;
-    letter-spacing: 0.02em;
 }
 
 .stButton > button:hover {
     background-color: #c73652;
 }
 
+/* Cards */
 .case-card {
     background: #1a1a2e;
     border: 1px solid #2a2a4a;
@@ -73,14 +78,15 @@ h1, h2, h3 { color: #ffffff !important; }
     font-family: monospace;
     font-size: 13px;
     color: #a0d4b8 !important;
-    line-height: 1.6;
 }
 
+/* Badges */
 .badge-easy   { background:#0d2b1e; color:#4ade80; padding:3px 10px; border-radius:4px; font-size:12px; }
 .badge-medium { background:#2b1e0d; color:#fb923c; padding:3px 10px; border-radius:4px; font-size:12px; }
 .badge-hard   { background:#2b0d0d; color:#f87171; padding:3px 10px; border-radius:4px; font-size:12px; }
 .badge-expert { background:#1e0d2b; color:#c084fc; padding:3px 10px; border-radius:4px; font-size:12px; }
 
+/* Domains */
 .domain-active {
     background: #1d3a2a;
     color: #4ade80;
@@ -97,13 +103,21 @@ h1, h2, h3 { color: #ffffff !important; }
     padding: 3px 10px;
     border-radius: 4px;
     font-size: 12px;
+    display: inline-block;
+    margin: 2px;
     text-decoration: line-through;
 }
-</style>""", unsafe_allow_html=True)
+
+/* Progress */
+.stProgress > div > div {
+    background-color: #e94560 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────
-#  SESSION STATE
+# SESSION STATE
 # ─────────────────────────────────────────────────────────────
 def init_state():
     defaults = {
@@ -115,6 +129,7 @@ def init_state():
         "completed_cases": [],
         "case_stars": {},
         "wrong_attempts": 0,
+        "verdict_correct": None,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -124,21 +139,22 @@ init_state()
 
 
 # ─────────────────────────────────────────────────────────────
-#  HELPERS
+# HELPERS
 # ─────────────────────────────────────────────────────────────
 def stars_from_clues(u, t):
-    return 3 if u <= t*0.5 else 2 if u <= t*0.75 else 1
+    r = u / t
+    if r <= 0.5: return 3
+    if r <= 0.75: return 2
+    return 1
 
 def badge_html(d):
     return f'<span class="badge-{d.lower()}">{d}</span>'
 
 def domain_pills(active, all_items):
-    return "".join(
-        f'<span class="domain-active">{i}</span>' if i in active
-        else f'<span class="domain-elim">{i}</span>'
-        for i in all_items
-    )
-
+    html = ""
+    for i in all_items:
+        html += f'<span class="domain-active">{i}</span>' if i in active else f'<span class="domain-elim">{i}</span>'
+    return html
 
 def start_case(cid):
     case = CASES[cid]
@@ -155,31 +171,12 @@ def go_home():
 
 
 # ─────────────────────────────────────────────────────────────
-# 🔥 FIXED CASE FILTERING (MAIN ISSUE FIXED HERE)
-# ─────────────────────────────────────────────────────────────
-fun_cases = {
-    k: v for k, v in CASES.items()
-    if v.get("level", "").lower().strip() == "fun"
-}
-
-serious_cases = {
-    k: v for k, v in CASES.items()
-    if v.get("level", "").lower().strip() == "serious"
-}
-
-
-# ─────────────────────────────────────────────────────────────
-#  SIDEBAR
+# SIDEBAR
 # ─────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("## Mystery Solver")
-    st.divider()
-
-    st.markdown(f"**Score:** {st.session_state.score}")
-    st.markdown(f"**Solved:** {len(st.session_state.completed_cases)}")
-
-    st.divider()
-    st.markdown("### Cases")
+    st.markdown(f"Score: `{st.session_state.score}`")
+    st.markdown(f"Solved: `{len(st.session_state.completed_cases)}`")
 
     for cid, case in CASES.items():
         if st.button(case["title"], key=f"sb_{cid}"):
@@ -192,49 +189,27 @@ with st.sidebar:
 
 
 # ─────────────────────────────────────────────────────────────
-#  HOME SCREEN
+# HOME SCREEN
 # ─────────────────────────────────────────────────────────────
 if st.session_state.screen == "home":
-
     st.title("Mystery Solver")
+    st.write("Solve cases using CSP logic and deduction.")
+    
+    for cid, case in CASES.items():
+        st.markdown(f"""
+        <div class="case-card">
+            <h3>{case['title']}</h3>
+            <p>{case['description'][:120]}...</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.subheader("Intro Cases")
-
-    cols = st.columns(2)
-    for i, (cid, case) in enumerate(fun_cases.items()):
-        with cols[i % 2]:
-            st.markdown(f"""
-<div class="case-card">
-<h3>{case['title']}</h3>
-<p>{case['description'][:120]}...</p>
-<p>{badge_html(case['difficulty'])}</p>
-</div>
-""", unsafe_allow_html=True)
-
-            if st.button("Start", key=f"start_{cid}"):
-                start_case(cid)
-                st.rerun()
-
-    st.subheader("Serious Cases")
-
-    cols = st.columns(3)
-    for i, (cid, case) in enumerate(serious_cases.items()):
-        with cols[i % 3]:
-            st.markdown(f"""
-<div class="case-card">
-<h3>{case['title']}</h3>
-<p>{case['description'][:120]}...</p>
-<p>{badge_html(case['difficulty'])}</p>
-</div>
-""", unsafe_allow_html=True)
-
-            if st.button("Start", key=f"start2_{cid}"):
-                start_case(cid)
-                st.rerun()
+        if st.button(f"Start Case {cid}", key=f"start_{cid}"):
+            start_case(cid)
+            st.rerun()
 
 
 # ─────────────────────────────────────────────────────────────
-#  GAME SCREEN (UNCHANGED LOGIC SHORT VERSION)
+# GAME SCREEN
 # ─────────────────────────────────────────────────────────────
 elif st.session_state.screen == "game":
 
@@ -248,7 +223,7 @@ elif st.session_state.screen == "game":
 
     st.subheader("Suspects")
     for s in case["suspects"]:
-        st.write("✔" if s in state["suspect_domain"] else "❌", s)
+        st.write("✔" if s in state["suspect_domain"] else "✖", s)
 
     st.subheader("Clues")
 
@@ -269,16 +244,18 @@ elif st.session_state.screen == "game":
     if st.button("Submit"):
         if csp.verify_accusation(s, l, w):
             st.success("Correct!")
+            st.session_state.completed_cases.append(st.session_state.current_case_id)
             st.session_state.screen = "home"
+            st.rerun()
         else:
-            st.error("Wrong!")
+            st.error("Wrong answer!")
 
 
 # ─────────────────────────────────────────────────────────────
-#  VERDICT SCREEN (simple)
+# VERDICT SCREEN
 # ─────────────────────────────────────────────────────────────
 elif st.session_state.screen == "verdict":
     st.success("Case Solved!")
-    if st.button("Home"):
+    if st.button("Back Home"):
         go_home()
         st.rerun()
