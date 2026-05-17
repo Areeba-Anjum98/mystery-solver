@@ -228,15 +228,10 @@ with st.sidebar:
 
 **Constraint Propagation**
 - Each clue triggers elimination
-- Chain reaction across all domains
 
 **Arc Consistency (AC-3)**
 - Ensures consistency between variables
 - Reduces domains automatically
-
-**Backtracking**
-- Used when red herrings appear
-- Explores alternatives if stuck
 
 **Logical Agents**
 - Knowledge base updates per clue
