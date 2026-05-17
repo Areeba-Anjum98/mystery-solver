@@ -2,19 +2,19 @@ import streamlit as st
 from cases import CASES
 from csp_engine import CSPEngine
 
-# ─────────────────────────────────────────────
-# PAGE CONFIG
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  PAGE CONFIG
+# ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Mystery Solver",
-    page_icon="🔍",
+    page_icon="🕵️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ─────────────────────────────────────────────
-# DARK THEME CSS (UNCHANGED)
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  CUSTOM CSS
+# ─────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 .stApp { background-color: #0f0f1a; }
@@ -60,7 +60,8 @@ h1, h2, h3 { color: #ffffff !important; }
 .clue-card-done {
     background: #0d2b1e;
     border-left: 3px solid #1d9e75;
-    padding: 12px;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
     margin: 6px 0;
 }
 
@@ -72,15 +73,18 @@ h1, h2, h3 { color: #ffffff !important; }
     margin: 4px 0;
     font-family: monospace;
     font-size: 13px;
+    color: #a0d4b8 !important;
 }
 
+.badge-easy { background:#0d2b1e; color:#4ade80; padding:3px 10px; border-radius:4px; }
+.badge-medium { background:#2b1e0d; color:#fb923c; padding:3px 10px; border-radius:4px; }
+.badge-hard { background:#2b0d0d; color:#f87171; padding:3px 10px; border-radius:4px; }
 </style>
 """, unsafe_allow_html=True)
 
-
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # SESSION STATE
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 def init_state():
     defaults = {
         "screen": "home",
@@ -99,93 +103,117 @@ def init_state():
 
 init_state()
 
-
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # HELPERS
-# ─────────────────────────────────────────────
-def start_case(case_id):
-    case = CASES[case_id]
-    st.session_state.current_case_id = case_id
+# ─────────────────────────────────────────────────────────────
+def stars_from_clues(clues_used, total):
+    ratio = clues_used / total
+    if ratio <= 0.5:
+        return 3
+    elif ratio <= 0.75:
+        return 2
+    return 1
+
+def badge_html(difficulty):
+    return f'<span class="badge-{difficulty.lower()}">{difficulty}</span>'
+
+# SAFE FIX (IMPORTANT)
+def domain_pills(active, all_items):
+    active = active or []
+    html = ""
+    for item in all_items:
+        if item in active:
+            html += f'<span style="color:#4ade80">✓ {item}</span> '
+        else:
+            html += f'<span style="color:#555;text-decoration:line-through">{item}</span> '
+    return html
+
+def start_case(cid):
+    case = CASES[cid]
+    st.session_state.current_case_id = cid
     st.session_state.csp = CSPEngine(case)
     st.session_state.clues_revealed = 0
     st.session_state.wrong_attempts = 0
     st.session_state.screen = "game"
-
 
 def go_home():
     st.session_state.screen = "home"
     st.session_state.current_case_id = None
     st.session_state.csp = None
 
-
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # SIDEBAR
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.title("🔍 Mystery Solver")
-    st.write(f"🏆 Score: {st.session_state.score}")
+    st.markdown("## 🕵️ Mystery Solver")
 
-    for cid, case in CASES.items():
-        if st.button(case["title"], key=f"s_{cid}"):
-            start_case(cid)
-            st.rerun()
+    st.markdown(f"Score: `{st.session_state.score}`")
+    st.markdown(f"Cases: `{len(st.session_state.completed_cases)}`")
 
     st.divider()
 
-    # ── UPDATED AI CONCEPTS ──
-    with st.expander("🧠 AI Concepts Used"):
-        st.markdown("""
-**Constraint Satisfaction Problem (CSP)**
-- Suspect, Location, Weapon as variables  
-- Each clue reduces possible values  
+    for cid, case in CASES.items():
+        label = f"{case['title']}"
+        if st.button(label, key=f"sb_{cid}"):
+            start_case(cid)
+            st.rerun()
 
-**Constraint Propagation**
-- Clues automatically eliminate invalid options  
-- Domains shrink step by step  
+    if st.session_state.screen != "home":
+        if st.button("🏠 Home"):
+            go_home()
+            st.rerun()
 
-**Logical Reasoning System**
-- Final answer derived through deduction  
-- Works like a detective logic engine  
-        """)
-
-    if st.button("🏠 Home"):
-        go_home()
-        st.rerun()
-
-
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # HOME SCREEN
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 if st.session_state.screen == "home":
-    st.title("🔍 Mystery Solver")
-    st.write("Solve mysteries using logic + CSP reasoning.")
-    st.info("Select a case from sidebar to start.")
 
+    st.title("🕵️ Mystery Solver")
 
-# ─────────────────────────────────────────────
+    st.markdown("Solve cases using logic + CSP elimination.")
+
+    for cid, case in CASES.items():
+        st.markdown(f"""
+        <div class="case-card">
+        <h3>{case['title']}</h3>
+        <p>{case['description'][:100]}...</p>
+        <p>{badge_html(case['difficulty'])}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button(f"Start {case['title']}", key=f"start_{cid}"):
+            start_case(cid)
+            st.rerun()
+
+# ─────────────────────────────────────────────────────────────
 # GAME SCREEN
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 elif st.session_state.screen == "game":
 
     case = CASES[st.session_state.current_case_id]
     csp = st.session_state.csp
 
-    st.title(case["title"])
-    st.write(case["description"])
+    st.title(case['title'])
 
-    # Reveal clues
-    if st.button("👁 Reveal Next Clue"):
+    st.markdown("### Suspects")
+    state = csp.get_current_state()
+
+    for s in case["suspects"]:
+        status = "ACTIVE" if s in state["suspect_domain"] else "ELIMINATED"
+        st.write(f"{s} - {status}")
+
+    st.divider()
+
+    if st.button("Reveal Clue"):
         if st.session_state.clues_revealed < len(case["clues"]):
             clue = case["clues"][st.session_state.clues_revealed]
             csp.apply_clue(clue)
             st.session_state.clues_revealed += 1
             st.rerun()
 
-    st.subheader("🔎 Clues")
-    for i in range(st.session_state.clues_revealed):
-        st.write(case["clues"][i]["text"])
+    st.divider()
 
-    st.subheader("⚖️ Accusation")
+    st.markdown("### Accusation")
 
     suspect = st.selectbox("Suspect", case["suspects"])
     location = st.selectbox("Location", case["locations"])
@@ -193,27 +221,21 @@ elif st.session_state.screen == "game":
 
     if st.button("Submit"):
         if csp.verify_accusation(suspect, location, weapon):
-            st.success("Correct! 🎉 Case Solved")
-            st.session_state.score += 100
+            st.success("Correct!")
+
+            stars = stars_from_clues(
+                st.session_state.clues_revealed,
+                len(case["clues"])
+            )
+
+            st.session_state.score += stars * 100
+            st.session_state.completed_cases.append(st.session_state.current_case_id)
+
             st.session_state.screen = "home"
             st.rerun()
         else:
-            st.error("Wrong! Try again.")
+            st.error("Wrong accusation")
 
-
-# ─────────────────────────────────────────────
-# VERDICT SCREEN
-# ─────────────────────────────────────────────
-elif st.session_state.screen == "verdict":
-
-    case = CASES[st.session_state.current_case_id]
-
-    st.title("🎉 Case Solved!")
-
-    st.success(f"🕵️ Culprit: {case['solution']['culprit']}")
-    st.success(f"📍 Location: {case['solution']['location']}")
-    st.success(f"🔧 Weapon: {case['solution']['weapon']}")
-
-    if st.button("🏠 Back Home"):
-        go_home()
-        st.rerun()
+# ─────────────────────────────────────────────────────────────
+# END
+# ─────────────────────────────────────────────────────────────
